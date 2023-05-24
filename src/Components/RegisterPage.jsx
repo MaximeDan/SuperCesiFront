@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './../Styles/RegisterPage.css';
+import {Button, Checkbox, Label, TextInput} from "flowbite-react";
 
 const RegisterPage = () => {
 	const [username, setUsername] = useState('');
@@ -12,39 +13,66 @@ const RegisterPage = () => {
 	};
 
 	return (
-		<div className="register-page">
-			<h2>Register</h2>
-			<form onSubmit={handleSubmit}>
-				<div className="form-group">
-					<label htmlFor="username">Username:</label>
-					<input
-						type="text"
-						id="username"
-						value={username}
-						onChange={(e) => setUsername(e.target.value)}
+		<form className="flex flex-col gap-4">
+			<div>
+				<div className="mb-2 block">
+					<Label
+						htmlFor="email2"
+						value="Your email"
 					/>
 				</div>
-				<div className="form-group">
-					<label htmlFor="password">Password:</label>
-					<input
-						type="password"
-						id="password"
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
+				<TextInput
+					id="email2"
+					type="email"
+					placeholder="name@flowbite.com"
+					required={true}
+					shadow={true}
+				/>
+			</div>
+			<div>
+				<div className="mb-2 block">
+					<Label
+						htmlFor="password2"
+						value="Your password"
 					/>
 				</div>
-				<div className="form-group">
-					<label htmlFor="confirmPassword">Confirm Password:</label>
-					<input
-						type="password"
-						id="confirmPassword"
-						value={confirmPassword}
-						onChange={(e) => setConfirmPassword(e.target.value)}
+				<TextInput
+					id="password2"
+					type="password"
+					required={true}
+					shadow={true}
+				/>
+			</div>
+			<div>
+				<div className="mb-2 block">
+					<Label
+						htmlFor="repeat-password"
+						value="Repeat password"
 					/>
 				</div>
-				<button type="submit">Register</button>
-			</form>
-		</div>
+				<TextInput
+					id="repeat-password"
+					type="password"
+					required={true}
+					shadow={true}
+				/>
+			</div>
+			<div className="flex items-center gap-2">
+				<Checkbox id="agree" />
+				<Label htmlFor="agree">
+					I agree with the
+					<a
+						href="/forms"
+						className="text-blue-600 hover:underline dark:text-blue-500"
+					>
+						terms and conditions
+					</a>
+				</Label>
+			</div>
+			<Button type="submit">
+				Register new account
+			</Button>
+		</form>
 	);
 };
 

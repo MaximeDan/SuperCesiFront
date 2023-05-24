@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './../Styles/loginPage.css';
+import {Button, Checkbox, Label, TextInput} from "flowbite-react";
 
 const LoginPage = () => {
 	const [email, setEmail] = useState('');
@@ -15,28 +16,43 @@ const LoginPage = () => {
 		<div className="login-page">
 			<div className="login-container">
 				<h2>Login</h2>
-				<form onSubmit={handleSubmit}>
-					<div className="form-group">
-						<label htmlFor="email">Email</label>
-						<input
+				<form className="flex flex-col gap-4">
+					<div>
+						<div className="mb-2 block">
+							<Label
+								htmlFor="email1"
+								value="Your email"
+							/>
+						</div>
+						<TextInput
+							id="email1"
 							type="email"
-							id="email"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							required
+							placeholder="name@flowbite.com"
+							required={true}
 						/>
 					</div>
-					<div className="form-group">
-						<label htmlFor="password">Password</label>
-						<input
+					<div>
+						<div className="mb-2 block">
+							<Label
+								htmlFor="password1"
+								value="Your password"
+							/>
+						</div>
+						<TextInput
+							id="password1"
 							type="password"
-							id="password"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							required
+							required={true}
 						/>
 					</div>
-					<button type="submit">Login</button>
+					<div className="flex items-center gap-2">
+						<Checkbox id="remember" />
+						<Label htmlFor="remember">
+							Remember me
+						</Label>
+					</div>
+					<Button type="submit">
+						Submit
+					</Button>
 				</form>
 			</div>
 		</div>
