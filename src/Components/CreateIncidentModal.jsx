@@ -3,10 +3,9 @@ import {Button, Label, Modal, Select, TextInput} from 'flowbite-react';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 
-const CreateIncidentModal = ({ createIncidentPosition, city, incidentTypes,isOpen, onClose }) => {
+const CreateIncidentModal = ({ createIncidentPosition, city, incidentTypes}) => {
     const { handleSubmit, register } = useForm();
-    const [modalOpen, setModalOpen] = useState(isOpen);
-
+    const [modalOpen, setModalOpen] = useState(true);
 
     const onSubmit = async (data) => {
         try {
@@ -14,9 +13,9 @@ const CreateIncidentModal = ({ createIncidentPosition, city, incidentTypes,isOpe
             const incidentData = {
                 latitude: parseFloat(latitude),
                 longitude: parseFloat(longitude),
-                isResolved: isResolved === 'true', // Convert string to boolean
+                isResolved: isResolved === 'true',
                 incidentTypeId: parseInt(incidentTypeId),
-                city: city || null // Set city to null if it's empty
+                city: city || null
             };
 
             await axios.post('https://localhost:44345/api/incident/Create', incidentData);
@@ -32,7 +31,7 @@ const CreateIncidentModal = ({ createIncidentPosition, city, incidentTypes,isOpe
     const { lat, lng } = createIncidentPosition || {};
 
     return (
-        <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+        <Modal dismissible show={modalOpen} onClose={() => setModalOpen(false)}>
         <div className="incident-form">
                 <h3>Créer un incident</h3>
                 <p>Cliquez sur le lieu de l'incident sur la carte</p>
@@ -42,7 +41,7 @@ const CreateIncidentModal = ({ createIncidentPosition, city, incidentTypes,isOpe
                             <Label htmlFor="small" value="Latitude" />
                         </div>
                         <TextInput
-                            id="latitude"
+                            id="small"
                             type="text"
                             sizing="md"
                             {...register('latitude')}
@@ -90,7 +89,7 @@ const CreateIncidentModal = ({ createIncidentPosition, city, incidentTypes,isOpe
                     </div>
                     <div className="flex flex-wrap gap-2">
                         <div>
-                            <Button color="createIncident" pill={true} type="submit">
+                            <Button  pill={true} type="submit">
                                 Créer Incident
                             </Button>
                         </div>

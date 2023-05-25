@@ -20,72 +20,60 @@ import snakesInvasionIcon from '../icons/snakes.png';
 import prisonerEscapeIcon from '../icons/wall.png';
 import strikeIcon from '../icons/activist.png';
 import markerIconPng from 'leaflet/dist/images/marker-icon.png';
-import {Button, Card} from "flowbite-react";
+import {Button} from "flowbite-react";
+import {CreateSuperHeroForm} from "./CreateSuperHeroForm";
 
 
-const Map = () => {
+const Map = ({incidents, incidentTypes}) => {
     const [map, setMap] = useState(null);
-    const [incidents, setIncidents] = useState([]);
     const [createIncidentPosition, setCreateIncidentPosition] = useState(null);
-    const [createIncidentMode, setCreateIncidentMode] = useState(false);
     const [city, setCity] = useState(null);
-    const [incidentTypes, setIncidentTypes] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+
     const iconMappings = {
         Fire: L.icon({
-            iconUrl: fireIcon,
-            iconSize: [32, 32],
-        }),
+                         iconUrl: fireIcon,
+                         iconSize: [32, 32],
+                     }),
         CarAccident: L.icon({
-            iconUrl: carAccidentIcon,
-            iconSize: [32, 32],
-        }),
+                                iconUrl: carAccidentIcon,
+                                iconSize: [32, 32],
+                            }),
         BoatAccident: L.icon({
-            iconUrl: boatAccidentIcon,
-            iconSize: [32, 32],
-        }),
+                                 iconUrl: boatAccidentIcon,
+                                 iconSize: [32, 32],
+                             }),
         PlaneAccident: L.icon({
-            iconUrl: planeAccidentIcon,
-            iconSize: [32, 32],
-        }),
+                                  iconUrl: planeAccidentIcon,
+                                  iconSize: [32, 32],
+                              }),
         GasLeak: L.icon({
-            iconUrl: gasLeakIcon,
-            iconSize: [32, 32],
-        }),
+                            iconUrl: gasLeakIcon,
+                            iconSize: [32, 32],
+                        }),
         LandSlide: L.icon({
-            iconUrl: landSlideIcon,
-            iconSize: [32, 32],
-        }),
+                              iconUrl: landSlideIcon,
+                              iconSize: [32, 32],
+                          }),
         Robbery: L.icon({
-            iconUrl: robberyIcon,
-            iconSize: [32, 32],
-        }),
+                            iconUrl: robberyIcon,
+                            iconSize: [32, 32],
+                        }),
         SnakeInvasion: L.icon({
-            iconUrl: snakesInvasionIcon,
-            iconSize: [32, 32],
-        }),
+                                  iconUrl: snakesInvasionIcon,
+                                  iconSize: [32, 32],
+                              }),
         PrisonerEscape: L.icon({
-            iconUrl: prisonerEscapeIcon,
-            iconSize: [32, 32],
-        }),
+                                   iconUrl: prisonerEscapeIcon,
+                                   iconSize: [32, 32],
+                               }),
         Strike: L.icon({
-            iconUrl: strikeIcon,
-            iconSize: [32, 32],
-        }),
+                           iconUrl: strikeIcon,
+                           iconSize: [32, 32],
+                       }),
     };
 
-    const createIncidentButtonClick = () => {
-        setCreateIncidentMode(true);
-        setIsModalOpen(true);
-    };
-
-    const handleMapClick = (e) => {
-        if (createIncidentMode) {
-            setCreateIncidentPosition(e.latlng);
-            setIsModalOpen(true);
-        }
-
-    };
 
 
     const addSuperheroButtonClick = () => {
@@ -94,13 +82,7 @@ const Map = () => {
 
     function LocationMarker() {
 
-        const map = useMapEvents({
-            click(e) {
-                setCreateIncidentPosition(e.latlng);
-            },
-        });
-
-        useEffect(() => {
+        const handleClick = () => {
             if (createIncidentPosition) {
                 const geocoder = L.Control.Geocoder.nominatim();
                 geocoder.reverse(
@@ -114,7 +96,15 @@ const Map = () => {
                     }
                 );
             }
-        }, [createIncidentPosition, map]);
+            setIsModalOpen(true);
+        };
+
+        const map = useMapEvents({
+                                     click(e) {
+                                         setCreateIncidentPosition(e.latlng);
+                                     },
+                                 });
+
 
         return createIncidentPosition === null ? null : (
             <Marker position={createIncidentPosition}
@@ -123,14 +113,14 @@ const Map = () => {
                     <div className="flex flex-wrap gap-2">
                         <h1>Créer un incident</h1>
                         <div>
-                            <Button onClick={createIncidentButtonClick}>Créer un incident</Button>
+                            <Button onClick={handleClick}>Créer un incident</Button>
+                            {isModalOpen &&
                             <CreateIncidentModal
                                 createIncidentPosition={createIncidentPosition}
                                 city={city}
                                 incidentTypes={incidentTypes}
-                                isOpen={isModalOpen}
-                                onClose={() => setIsModalOpen(false)}
                             />
+                            }
                         </div>
                     </div>
                 </Popup>
@@ -138,45 +128,17 @@ const Map = () => {
         )
     }
 
-    useEffect(() => {
-        const fetchIncidentTypes = async () => {
-            try {
-                const response = await axios.post('https://localhost:44345/api/incidenttype/GetAll');
-                const data = response.data;
-
-                setIncidentTypes(data);
-
-            } catch (error) {
-                console.log('Error fetching incident types:', error);
-            }
-        };
-
-        const fetchIncidents = async () => {
-            try {
-                const response = await axios.post('https://localhost:44345/api/incident/GetAll');
-                const data = response.data;
-                setIncidents(data);
-            } catch (error) {
-                console.log('Error fetching incidents:', error);
-            }
-        };
-
-        fetchIncidents();
-
-        fetchIncidentTypes();
-    }, []);
-
 
     return (
         <div>
-            <h2 className="page-header">Carte des incidents</h2>
-            <div className="max-w-sm">
+            <div>
+                <h2 className="page-header">Carte des incidents</h2>
+                <div className="max-w-sm">
                     <MapContainer
                         center={[49.4402, 1.0931]}
                         zoom={13}
                         style={{height: '300px'}}
                         whenCreated={setMap}
-                        onClick={handleMapClick}
                         scrollWheelZoom={false}
                     >
                         <TileLayer
@@ -211,7 +173,11 @@ const Map = () => {
                             })
                         ) : null}
                     </MapContainer>
+                </div>
             </div>
+            <CreateSuperHeroForm
+                incidentTypes={ incidentTypes }
+                markerPosition={ createIncidentPosition }/>
         </div>
     );
 };
