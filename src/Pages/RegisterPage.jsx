@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './../Styles/RegisterPage.css';
+import '../Styles/RegisterPage.css';
 import {Button, Checkbox, Label, TextInput} from "flowbite-react";
 
 const RegisterPage = () => {

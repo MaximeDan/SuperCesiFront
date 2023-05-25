@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './../Styles/loginPage.css';
+import '../Styles/loginPage.css';
 import {Button, Checkbox, Label, TextInput} from "flowbite-react";
 
 const LoginPage = () => {

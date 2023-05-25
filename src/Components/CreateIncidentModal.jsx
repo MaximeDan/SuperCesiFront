@@ -1,11 +1,12 @@
-import React, {useState} from 'react';
+import React, { useState} from 'react';
 import {Button, Label, Modal, Select, TextInput} from 'flowbite-react';
 import axios from 'axios';
 import { useForm } from 'react-hook-form';
 
 const CreateIncidentModal = ({ createIncidentPosition, city, incidentTypes,isOpen, onClose }) => {
     const { handleSubmit, register } = useForm();
-    const [modalOpen, setModalOpen] = useState(true);
+    const [modalOpen, setModalOpen] = useState(isOpen);
+
 
     const onSubmit = async (data) => {
         try {
@@ -27,15 +28,12 @@ const CreateIncidentModal = ({ createIncidentPosition, city, incidentTypes,isOpe
         }
     };
 
-    if (!modalOpen) {
-        return null; // Render nothing if the modal is closed
-    }
 
     const { lat, lng } = createIncidentPosition || {};
 
     return (
-        <Modal open={isOpen} onClose={onClose}>
-            <div className="incident-form">
+        <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+        <div className="incident-form">
                 <h3>Créer un incident</h3>
                 <p>Cliquez sur le lieu de l'incident sur la carte</p>
                 <form onSubmit={handleSubmit(onSubmit)}>
@@ -44,11 +42,12 @@ const CreateIncidentModal = ({ createIncidentPosition, city, incidentTypes,isOpe
                             <Label htmlFor="small" value="Latitude" />
                         </div>
                         <TextInput
-                            id="small"
+                            id="latitude"
                             type="text"
                             sizing="md"
                             {...register('latitude')}
                             defaultValue={lat || ''}
+                            className="fb-input"
                         />
                     </div>
                     <div>
@@ -61,6 +60,7 @@ const CreateIncidentModal = ({ createIncidentPosition, city, incidentTypes,isOpe
                             sizing="md"
                             {...register('longitude')}
                             defaultValue={lng || ''}
+                            className="fb-input"
                         />
                     </div>
                     <div>
@@ -73,6 +73,7 @@ const CreateIncidentModal = ({ createIncidentPosition, city, incidentTypes,isOpe
                             sizing="md"
                             {...register('city')}
                             defaultValue={city || ''}
+                            className="fb-input"
                         />
                     </div>
                     <div id="select">

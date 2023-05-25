@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react';
-import {Link} from 'react-router-dom';
 import {MapContainer, TileLayer, Marker, Popup, useMapEvents} from 'react-leaflet';
 import '../Styles/HomePage.css';
 import L, {Icon} from 'leaflet';
@@ -21,10 +20,10 @@ import snakesInvasionIcon from '../icons/snakes.png';
 import prisonerEscapeIcon from '../icons/wall.png';
 import strikeIcon from '../icons/activist.png';
 import markerIconPng from 'leaflet/dist/images/marker-icon.png';
-import {Button, Card, Modal} from "flowbite-react";
+import {Button, Card} from "flowbite-react";
 
 
-const HomePage = () => {
+const Map = () => {
     const [map, setMap] = useState(null);
     const [incidents, setIncidents] = useState([]);
     const [createIncidentPosition, setCreateIncidentPosition] = useState(null);
@@ -34,65 +33,58 @@ const HomePage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const iconMappings = {
         Fire: L.icon({
-                         iconUrl: fireIcon,
-                         iconSize: [32, 32],
-                     }),
+            iconUrl: fireIcon,
+            iconSize: [32, 32],
+        }),
         CarAccident: L.icon({
-                                iconUrl: carAccidentIcon,
-                                iconSize: [32, 32],
-                            }),
+            iconUrl: carAccidentIcon,
+            iconSize: [32, 32],
+        }),
         BoatAccident: L.icon({
-                                 iconUrl: boatAccidentIcon,
-                                 iconSize: [32, 32],
-                             }),
+            iconUrl: boatAccidentIcon,
+            iconSize: [32, 32],
+        }),
         PlaneAccident: L.icon({
-                                  iconUrl: planeAccidentIcon,
-                                  iconSize: [32, 32],
-                              }),
+            iconUrl: planeAccidentIcon,
+            iconSize: [32, 32],
+        }),
         GasLeak: L.icon({
-                            iconUrl: gasLeakIcon,
-                            iconSize: [32, 32],
-                        }),
+            iconUrl: gasLeakIcon,
+            iconSize: [32, 32],
+        }),
         LandSlide: L.icon({
-                              iconUrl: landSlideIcon,
-                              iconSize: [32, 32],
-                          }),
+            iconUrl: landSlideIcon,
+            iconSize: [32, 32],
+        }),
         Robbery: L.icon({
-                            iconUrl: robberyIcon,
-                            iconSize: [32, 32],
-                        }),
+            iconUrl: robberyIcon,
+            iconSize: [32, 32],
+        }),
         SnakeInvasion: L.icon({
-                                  iconUrl: snakesInvasionIcon,
-                                  iconSize: [32, 32],
-                              }),
+            iconUrl: snakesInvasionIcon,
+            iconSize: [32, 32],
+        }),
         PrisonerEscape: L.icon({
-                                   iconUrl: prisonerEscapeIcon,
-                                   iconSize: [32, 32],
-                               }),
+            iconUrl: prisonerEscapeIcon,
+            iconSize: [32, 32],
+        }),
         Strike: L.icon({
-                           iconUrl: strikeIcon,
-                           iconSize: [32, 32],
-                       }),
+            iconUrl: strikeIcon,
+            iconSize: [32, 32],
+        }),
     };
 
     const createIncidentButtonClick = () => {
         setCreateIncidentMode(true);
-
+        setIsModalOpen(true);
     };
+
     const handleMapClick = (e) => {
         if (createIncidentMode) {
             setCreateIncidentPosition(e.latlng);
             setIsModalOpen(true);
         }
 
-    };
-
-    const handleModalClick = () => {
-        setIsModalOpen(!isModalOpen);
-    };
-
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
     };
 
 
@@ -128,8 +120,19 @@ const HomePage = () => {
             <Marker position={createIncidentPosition}
                     icon={new Icon({iconUrl: markerIconPng, iconSize: [25, 41], iconAnchor: [12, 41]})}>
                 <Popup>
-                    <h2>Créer un incident</h2>
-                    <button onClick={createIncidentButtonClick}>Créer un incident</button>
+                    <div className="flex flex-wrap gap-2">
+                        <h1>Créer un incident</h1>
+                        <div>
+                            <Button onClick={createIncidentButtonClick}>Créer un incident</Button>
+                            <CreateIncidentModal
+                                createIncidentPosition={createIncidentPosition}
+                                city={city}
+                                incidentTypes={incidentTypes}
+                                isOpen={isModalOpen}
+                                onClose={() => setIsModalOpen(false)}
+                            />
+                        </div>
+                    </div>
                 </Popup>
             </Marker>
         )
@@ -166,13 +169,12 @@ const HomePage = () => {
 
     return (
         <div>
-            <h2 className="page-header">Dashboard</h2>
+            <h2 className="page-header">Carte des incidents</h2>
             <div className="max-w-sm">
-                <Card>
                     <MapContainer
                         center={[49.4402, 1.0931]}
                         zoom={13}
-                        style={{ height: '300px' }}
+                        style={{height: '300px'}}
                         whenCreated={setMap}
                         onClick={handleMapClick}
                         scrollWheelZoom={false}
@@ -181,62 +183,38 @@ const HomePage = () => {
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             attribution="Map data &copy; <a href=&quot;https://www.openstreetmap.org/&quot;>OpenStreetMap</a> contributors"
                         />
-                        <LocationMarker />
-                        {incidents.map((incident) => {
-                            const { id, latitude, longitude, incidentTypeId, city } = incident;
-                            if (typeof latitude !== 'undefined' && typeof longitude !== 'undefined') {
-                                const incidentType = incidentTypes.find((type) => type.id === incidentTypeId);
-                                if (incidentType) {
-                                    return (
-                                        <Marker
-                                            key={incident.id}
-                                            position={[latitude, longitude]}
-                                            icon={iconMappings[incidentType.name]}
-                                        >
-                                            <Popup>
-                                                <h2>{incidentType.displayName}</h2>
-                                                <p>Afficher la liste des super héros pouvant résoudre cet incident dans un rayon de 50 km</p>
-                                                <button onClick={addSuperheroButtonClick}>Afficher la liste</button>
-                                                {city && <p>City: {city}</p>}
-                                            </Popup>
-                                        </Marker>
-                                    );
+                        <LocationMarker/>
+                        {Array.isArray(incidents) && incidents.length > 0 ? (
+                            incidents.map((incident) => {
+                                const {latitude, longitude, incidentTypeId, city} = incident;
+                                if (typeof latitude !== 'undefined' && typeof longitude !== 'undefined') {
+                                    const incidentType = incidentTypes.find((type) => type.id === incidentTypeId);
+                                    if (incidentType) {
+                                        return (
+                                            <Marker
+                                                key={incident.id}
+                                                position={[latitude, longitude]}
+                                                icon={iconMappings[incidentType.name]}
+                                            >
+                                                <Popup>
+                                                    <h2>{incidentType.displayName}</h2>
+                                                    <p>Afficher la liste des super héros pouvant résoudre cet incident
+                                                        dans un rayon de 50 km</p>
+                                                    <button onClick={addSuperheroButtonClick}>Afficher la liste</button>
+                                                    {city && <p>City: {city}</p>}
+                                                </Popup>
+                                            </Marker>
+                                        );
+                                    }
                                 }
-                            }
-                            return null;
-                        })}
+                                return null;
+                            })
+                        ) : null}
                     </MapContainer>
-                    <div>
-                        <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                            Noteworthy technology acquisitions 2021
-                        </h5>
-                        <p className="font-normal text-gray-700 dark:text-gray-400">
-                            Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.
-                        </p>
-                    </div>
-                </Card>
-            </div>
-
-            <div className="row">
-                <div className="col-6">
-                    <div className="incident-form">
-                        {createIncidentMode && (
-                            <React.Fragment>
-                                <CreateIncidentModal
-                                    createIncidentPosition={createIncidentPosition}
-                                    city={city}
-                                    incidentTypes={incidentTypes}
-                                    isOpen={isModalOpen}
-                                    onClose={!isModalOpen}
-                                />
-                            </React.Fragment>
-                        )}
-                    </div>
-                </div>
             </div>
         </div>
     );
 };
 
 
-export default HomePage;
+export default Map;
