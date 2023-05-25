@@ -1,4 +1,4 @@
-import {Avatar, Dropdown, Navbar} from "flowbite-react";
+import { Dropdown, Navbar} from "flowbite-react";
 
 export const NavBar = () => {
     return (

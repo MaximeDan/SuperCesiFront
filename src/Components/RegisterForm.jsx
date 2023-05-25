@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../Styles/RegisterPage.css';
-import {Button, Checkbox, Label, TextInput} from "flowbite-react";
+import {Button, Label, TextInput} from "flowbite-react";
 import axios from "axios";
 import {useForm} from "react-hook-form";
 

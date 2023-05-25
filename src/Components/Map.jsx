@@ -1,11 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {MapContainer, TileLayer, Marker, Popup, useMapEvents} from 'react-leaflet';
+import {MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap} from 'react-leaflet';
 import '../Styles/HomePage.css';
 import L, {Icon} from 'leaflet';
 import 'leaflet-control-geocoder/dist/Control.Geocoder.css';
 import 'leaflet-control-geocoder/dist/Control.Geocoder.js';
 import CreateIncidentModal from "./CreateIncidentModal";
-import axios from 'axios';
+import {CreateSuperHeroForm} from "./CreateSuperHeroForm";
+import {Button} from "flowbite-react";
+import "leaflet.locatecontrol";
 
 
 // Import marker icons for different incident types
@@ -20,16 +22,17 @@ import snakesInvasionIcon from '../icons/snakes.png';
 import prisonerEscapeIcon from '../icons/wall.png';
 import strikeIcon from '../icons/activist.png';
 import markerIconPng from 'leaflet/dist/images/marker-icon.png';
-import {Button} from "flowbite-react";
-import {CreateSuperHeroForm} from "./CreateSuperHeroForm";
+import SuperHeroesList from "./SuperHeroesList";
+import axios from "axios";
 
 
 const Map = ({incidents, incidentTypes}) => {
-    const [map, setMap] = useState(null);
     const [createIncidentPosition, setCreateIncidentPosition] = useState(null);
     const [city, setCity] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-
+    const [isIncidentModalOpen, setIsIncidentModalOpen] = useState(false);
+    const [isSuperHeroListModalOpen, setIsSuperHeroListModalOpen] = useState(false);
+    const [superheroesData, setSuperheroesData] = useState([]);
+    const [userLocation, setUserLocation] = useState(null);
 
     const iconMappings = {
         Fire: L.icon({
@@ -74,10 +77,29 @@ const Map = ({incidents, incidentTypes}) => {
                        }),
     };
 
+    const LocateControl = () => {
+        const map = useMap();
 
+        useEffect(() => {
+            const locateOptions = {
+                position: "topright", // Set the position to "topright"
+                drawCircle: false,
+                flyTo: true,
+                cacheLocation: true,
+                strings: {
+                    title: "Show my location",
+                },
+            };
 
-    const addSuperheroButtonClick = () => {
+            const locateControl = L.control.locate(locateOptions);
+            locateControl.addTo(map);
 
+            return () => {
+                locateControl.remove();
+            };
+        }, [map]);
+
+        return null;
     };
 
     function LocationMarker() {
@@ -96,7 +118,7 @@ const Map = ({incidents, incidentTypes}) => {
                     }
                 );
             }
-            setIsModalOpen(true);
+            setIsIncidentModalOpen(true);
         };
 
         const map = useMapEvents({
@@ -104,7 +126,6 @@ const Map = ({incidents, incidentTypes}) => {
                                          setCreateIncidentPosition(e.latlng);
                                      },
                                  });
-
 
         return createIncidentPosition === null ? null : (
             <Marker position={createIncidentPosition}
@@ -114,7 +135,7 @@ const Map = ({incidents, incidentTypes}) => {
                         <h1>Créer un incident</h1>
                         <div>
                             <Button onClick={handleClick}>Créer un incident</Button>
-                            {isModalOpen &&
+                            {isIncidentModalOpen &&
                             <CreateIncidentModal
                                 createIncidentPosition={createIncidentPosition}
                                 city={city}
@@ -128,6 +149,30 @@ const Map = ({incidents, incidentTypes}) => {
         )
     }
 
+    const addSuperheroButtonClick = () => {
+        setIsSuperHeroListModalOpen(true)
+    }
+
+    const superheroes = async () => {
+        try {
+            const response = await axios.post('https://localhost:44345/api/superhero/getall');
+            const data = response.data;
+
+            setSuperheroesData(data);
+        }
+        catch (error) {
+            console.log('Error fetching superheroes:', error);
+            throw error;
+        }
+    };
+
+    useEffect(() => {
+        superheroes();
+    }, []);
+
+    const handleLocationFound = (e) => {
+        setUserLocation(e.latlng);
+    };
 
     return (
         <div>
@@ -138,9 +183,11 @@ const Map = ({incidents, incidentTypes}) => {
                         center={[49.4402, 1.0931]}
                         zoom={13}
                         style={{height: '300px'}}
-                        whenCreated={setMap}
-                        scrollWheelZoom={false}
+                        whenCreated={(map) => {
+                            map.on("locationfound", handleLocationFound);
+                        }}
                     >
+                        <LocateControl />
                         <TileLayer
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             attribution="Map data &copy; <a href=&quot;https://www.openstreetmap.org/&quot;>OpenStreetMap</a> contributors"
@@ -162,7 +209,14 @@ const Map = ({incidents, incidentTypes}) => {
                                                     <h2>{incidentType.displayName}</h2>
                                                     <p>Afficher la liste des super héros pouvant résoudre cet incident
                                                         dans un rayon de 50 km</p>
-                                                    <button onClick={addSuperheroButtonClick}>Afficher la liste</button>
+                                                    <Button onClick={addSuperheroButtonClick}>Afficher la liste</Button>
+                                                    {isSuperHeroListModalOpen &&
+                                                    <SuperHeroesList
+                                                    selectedIncidentType={incidentType}
+                                                    incidentLatitude={latitude}
+                                                    incidentLongitude={longitude}
+                                                    superheroesData={superheroesData}/>
+                                                    }
                                                     {city && <p>City: {city}</p>}
                                                 </Popup>
                                             </Marker>

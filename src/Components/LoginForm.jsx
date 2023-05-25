@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../Styles/loginPage.css';
-import {Button, Checkbox, Label, TextInput} from "flowbite-react";
+import {Button, Label, TextInput} from "flowbite-react";
 import {useForm} from "react-hook-form";
 import axios from "axios";
 
-const LoginPage = () => {
+const LoginForm = () => {
 	const { handleSubmit, register } = useForm();
 
 	const onSubmit = async (user) => {
@@ -65,4 +65,4 @@ const LoginPage = () => {
 	);
 };
 
-export default LoginPage;
+export default LoginForm;
