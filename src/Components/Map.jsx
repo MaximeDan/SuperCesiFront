@@ -6,9 +6,9 @@ import 'leaflet-control-geocoder/dist/Control.Geocoder.css';
 import 'leaflet-control-geocoder/dist/Control.Geocoder.js';
 import CreateIncidentModal from "./CreateIncidentModal";
 import {CreateSuperHeroForm} from "./CreateSuperHeroForm";
-import {Button} from "flowbite-react";
+import {Button, Card} from "flowbite-react";
 import "leaflet.locatecontrol";
-
+import '../Styles/Map.css'
 
 // Import marker icons for different incident types
 import fireIcon from '../icons/fire-truck.png';
@@ -24,6 +24,8 @@ import strikeIcon from '../icons/activist.png';
 import markerIconPng from 'leaflet/dist/images/marker-icon.png';
 import SuperHeroesList from "./SuperHeroesList";
 import axios from "axios";
+import {SuperHeroList} from "./SuperHeroDisplay";
+import {SuperHeroRegistration} from "./SuperHeroRegistration";
 
 
 const Map = ({incidents, incidentTypes}) => {
@@ -136,12 +138,16 @@ const Map = ({incidents, incidentTypes}) => {
                         <div>
                             <Button onClick={handleClick}>Créer un incident</Button>
                             {isIncidentModalOpen &&
-                            <CreateIncidentModal
-                                createIncidentPosition={createIncidentPosition}
-                                city={city}
-                                incidentTypes={incidentTypes}
-                            />
-                            }
+                                <div style={{ position: 'absolute', zIndex: '9999' }}>
+                                    <CreateIncidentModal
+                                    className="modal-component"
+                                    createIncidentPosition={createIncidentPosition}
+                                    city={city}
+                                    incidentTypes={incidentTypes}
+                                    onCloseModal={() => setIsIncidentModalOpen(false)}
+                                />
+                                </div>
+                                }
                         </div>
                     </div>
                 </Popup>
@@ -159,8 +165,7 @@ const Map = ({incidents, incidentTypes}) => {
             const data = response.data;
 
             setSuperheroesData(data);
-        }
-        catch (error) {
+        } catch (error) {
             console.log('Error fetching superheroes:', error);
             throw error;
         }
@@ -175,63 +180,74 @@ const Map = ({incidents, incidentTypes}) => {
     };
 
     return (
-        <div>
-            <div>
-                <h2 className="page-header">Carte des incidents</h2>
-                <div className="max-w-sm">
-                    <MapContainer
-                        center={[49.4402, 1.0931]}
-                        zoom={13}
-                        style={{height: '300px'}}
-                        whenCreated={(map) => {
-                            map.on("locationfound", handleLocationFound);
-                        }}
-                    >
-                        <LocateControl />
-                        <TileLayer
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            attribution="Map data &copy; <a href=&quot;https://www.openstreetmap.org/&quot;>OpenStreetMap</a> contributors"
-                        />
-                        <LocationMarker/>
-                        {Array.isArray(incidents) && incidents.length > 0 ? (
-                            incidents.map((incident) => {
-                                const {latitude, longitude, incidentTypeId, city} = incident;
-                                if (typeof latitude !== 'undefined' && typeof longitude !== 'undefined') {
-                                    const incidentType = incidentTypes.find((type) => type.id === incidentTypeId);
-                                    if (incidentType) {
-                                        return (
-                                            <Marker
-                                                key={incident.id}
-                                                position={[latitude, longitude]}
-                                                icon={iconMappings[incidentType.name]}
-                                            >
-                                                <Popup>
-                                                    <h2>{incidentType.displayName}</h2>
-                                                    <p>Afficher la liste des super héros pouvant résoudre cet incident
-                                                        dans un rayon de 50 km</p>
-                                                    <Button onClick={addSuperheroButtonClick}>Afficher la liste</Button>
-                                                    {isSuperHeroListModalOpen &&
-                                                    <SuperHeroesList
-                                                    selectedIncidentType={incidentType}
-                                                    incidentLatitude={latitude}
-                                                    incidentLongitude={longitude}
-                                                    superheroesData={superheroesData}/>
-                                                    }
-                                                    {city && <p>City: {city}</p>}
-                                                </Popup>
-                                            </Marker>
-                                        );
+        <div className="container mx-auto" style={{display: 'flex'}}>
+            <div style={{ width: '70vh', marginRight: '1rem' }}>
+                <Card style={{ width: '100%', height: '100%' }}>
+                    <h2 className="page-header">Carte des incidents</h2>
+                    <div className="max-w-sm h-96" style={{ width: '70vh'}}>
+                        <MapContainer
+                            center={[49.4402, 1.0931]}
+                            zoom={13}
+                            style={{height: '100%', width: '100%', position: 'relative', zIndex:'1'}}
+                            whenCreated={(map) => {
+                                map.on("locationfound", handleLocationFound);
+                            }}
+                        >
+                            <LocateControl/>
+                            <TileLayer
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                attribution="Map data &copy; <a href=&quot;https://www.openstreetmap.org/&quot;>OpenStreetMap</a> contributors"
+                            />
+                            <LocationMarker/>
+                            {Array.isArray(incidents) && incidents.length > 0 ? (
+                                incidents.map((incident) => {
+                                    const { latitude, longitude, incidentTypeId, city } = incident;
+                                    if (typeof latitude !== 'undefined' && typeof longitude !== 'undefined') {
+                                        const incidentType = incidentTypes.find((type) => type.id === incidentTypeId);
+                                        if (incidentType) {
+                                            return (
+                                                <Marker
+                                                    key={incident.id}
+                                                    position={[latitude, longitude]}
+                                                    icon={iconMappings[incidentType.name]}
+                                                >
+                                                    <Popup>
+                                                        <h2>{incidentType.displayName}</h2>
+                                                        <p>Afficher la liste des super héros pouvant résoudre cet incident dans un rayon de 50 km</p>
+                                                        <Button onClick={() => setIsSuperHeroListModalOpen(incident.id)}>Afficher la liste</Button>
+                                                        {isSuperHeroListModalOpen === incident.id && (
+                                                            <SuperHeroesList
+                                                                className="modal-component"
+                                                                selectedIncidentType={incidentType}
+                                                                incidentLatitude={latitude}
+                                                                incidentLongitude={longitude}
+                                                                superheroesData={superheroesData}
+                                                                onCloseModal={() => setIsSuperHeroListModalOpen(null)}
+                                                            />
+                                                        )}
+                                                        {city && <p>City: {city}</p>}
+                                                    </Popup>
+                                                </Marker>
+                                            );
+                                        }
                                     }
-                                }
-                                return null;
-                            })
-                        ) : null}
-                    </MapContainer>
-                </div>
+                                    return null;
+                                })
+                            ) : null}
+                        </MapContainer>
+
+                    </div>
+                </Card>
             </div>
-            <CreateSuperHeroForm
-                incidentTypes={ incidentTypes }
-                markerPosition={ createIncidentPosition }/>
+            <div style={{marginLeft: '1rem'}}>
+                <Card>
+                    <SuperHeroList />
+                    <SuperHeroRegistration
+                        markerPosition={createIncidentPosition}
+                        incidentTypes={incidentTypes}
+                    />
+                </Card>
+            </div>
         </div>
     );
 };

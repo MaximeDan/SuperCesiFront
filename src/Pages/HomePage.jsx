@@ -39,11 +39,13 @@ export const HomePage = () => {
 
 
 	return (
-		<div>
+		<div className="bg-gray-100">
 			<NavBar />
-			<Map
-			incidents={incidents}
-			incidentTypes={incidentTypes}/>
+			<div className="container mx-auto p-4">
+				<Map
+				incidents={incidents}
+				incidentTypes={incidentTypes}/>
+			</div>
 		</div>
 	);
 };

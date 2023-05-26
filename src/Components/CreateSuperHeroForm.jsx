@@ -1,11 +1,14 @@
 import {Button, Checkbox, Label, TextInput} from "flowbite-react";
 import React, {useEffect, useState} from "react";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 export const CreateSuperHeroForm = ({markerPosition, incidentTypes}) => {
 	const [selectedItems, setSelectedItems] = useState([]);
 	const { lat, lng } = markerPosition || { lat: '', lng: '' };
+	const [registrationStatus, setRegistrationStatus] = useState("");
 	const [formData, setFormData] = useState({
 		name: '',
 		phoneNumber: '',
@@ -65,17 +68,27 @@ export const CreateSuperHeroForm = ({markerPosition, incidentTypes}) => {
 			.post('https://localhost:44345/api/superhero/register', superHeroData)
 			.then((response) => {
 				// Handle the success response
-				console.log('Form submitted successfully', response);
+				toast.success("Registration successful", {
+					position: toast.POSITION.TOP_CENTER,
+				});
+				setRegistrationStatus("Registration successful");
+				window.location.reload(); // Reload the page
+				console.log("Form submitted successfully", response);
 			})
 			.catch((error) => {
 				// Handle the error response
-				console.error('Error submitting form', error);
+				toast.error("Registration failed", {
+					position: toast.POSITION.TOP_CENTER,
+				});
+				setRegistrationStatus("Registration failed");
+				console.error("Error submitting form", error);
 			});
 	};
 
 
 	return (
 		<div className="super-hero-form">
+			<ToastContainer />
 			<h3>S'enregistrer</h3>
 			<p>Cliquer sur la carte pour reseigner votre adresse</p>
 			<form onSubmit={handleSubmit}>
@@ -175,6 +188,8 @@ export const CreateSuperHeroForm = ({markerPosition, incidentTypes}) => {
 					</Button>
 				</div>
 			</form>
+
+			{registrationStatus && <p>{registrationStatus}</p>}
 		</div>
 	);
 };
