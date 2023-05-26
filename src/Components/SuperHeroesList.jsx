@@ -1,4 +1,4 @@
-import {Button, Modal} from "flowbite-react";
+import {Button, Modal, Table} from "flowbite-react";
 import {useEffect, useState} from "react";
 import axios from "axios";
 
@@ -43,41 +43,35 @@ console.log(superheroesData)
 				{superheroesData.length === 0 ? (
 					<div>No superheroes found.</div>
 				) : (
-					<table>
-						<thead>
-						<tr>
-							<th>Name</th>
-							<th>Phone Number</th>
-						</tr>
-						</thead>
-						<tbody>
-						{superheroesData
-							.filter(
-								(superhero) =>
-									superhero.incidentTypes &&
-									superhero.incidentTypes.some(
-										(incidentType) =>
-											incidentType.name === selectedIncidentType.name
-									) &&
-									calculateDistance(
-										superhero.latitude,
-										superhero.longitude,
-										incidentLatitude,
-										incidentLongitude
-									) <= 50
-							)
-							.map((superhero, index) => (
-								<tr key={superhero.id}>
-									<td>{superhero.name}
-										<span style={{ marginLeft: '0.5rem' }}></span>
-									</td>
-									<td>
-										{superhero.phoneNumber}
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
+					<Table>
+						<Table.Head>
+							<Table.HeadCell>Name</Table.HeadCell>
+							<Table.HeadCell>Phone Number</Table.HeadCell>
+						</Table.Head>
+						<Table.Body className="divide-y">
+							{superheroesData
+								.filter(
+									(superhero) =>
+										superhero.incidentTypes &&
+										superhero.incidentTypes.some(
+											(incidentType) =>
+												incidentType.name === selectedIncidentType.name
+										) &&
+										calculateDistance(
+											superhero.latitude,
+											superhero.longitude,
+											incidentLatitude,
+											incidentLongitude
+										) <= 50
+								)
+								.map((superhero, index) => (
+									<Table.Row key={superhero.id}>
+										<Table.Cell>{superhero.name}</Table.Cell>
+										<Table.Cell>{superhero.phoneNumber}</Table.Cell>
+									</Table.Row>
+								))}
+						</Table.Body>
+					</Table>
 				)}
 			</Modal.Body>
 			<Modal.Footer>
