@@ -51,13 +51,23 @@ export const CreateSuperHeroForm = ({markerPosition, incidentTypes}) => {
 	const handleSubmit = (event) => {
 		event.preventDefault();
 
-		if (selectedItems.length === 0) {
-			alert('Please select at least one item.');
-			return;
-		} else if (selectedItems.length > 3) {
-			alert('Please select a maximum of three items.');
+		if (!formData.name || !formData.phoneNumber || (!formData.latitude && !formData.longitude)) {
+			toast.error("Please fill in all required fields", {
+				position: toast.POSITION.TOP_CENTER,
+			});
 			return;
 		}
+
+		if (selectedItems.length === 0) {
+			toast.error("Please select at least one incident type", {
+				position: toast.POSITION.TOP_CENTER,
+			});
+			return;
+		} else if (selectedItems.length > 3) {
+			toast.error("Please select a maximum of three incident types", {
+				position: toast.POSITION.TOP_CENTER,
+			});
+			return;}
 
 		const superHeroData = {
 			...formData,
